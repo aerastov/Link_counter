@@ -27,8 +27,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-REDIS_HOST = 'localhost' # For start local django
-# REDIS_HOST = 'redis' # For start django in docker
+#REDIS_HOST = 'localhost' # For start local django
+REDIS_HOST = 'redis' # For start django in docker
 REDIS_PORT = 6379
 
 # Application definition
