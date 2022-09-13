@@ -63,8 +63,8 @@ POST /visited_links
 После установки docker, загружаем проект командой:  
 `git clone https://github.com/aerastov/Link_counter.git`  
 В командной строке, переходим в директорию проекта и набираем:  
-`sudo docker-compose up -d`  //В среде lunix
-`docker-compose up -d` //Docker Desktop (Windows или Macos)
+`sudo docker-compose up -d`  //В среде lunix  
+`docker-compose up -d` //Docker Desktop (Windows или Macos)  
 
 После завершения установки и запуска контейнеров, заходим в браузере по адресам:
 
