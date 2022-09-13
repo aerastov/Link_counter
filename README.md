@@ -9,12 +9,12 @@
 Запрос 1
 ```
 POST /visited_links
-{ 
+{
     "links": [
-        "https://ya.ru", 
-        "https://ya.ru?q=123", 
-        "funbox.ru", 
-        "https://stackoverflow.com/questions/11828270/how-to-exit-the-vim-editor" 
+        "https://ya.ru",
+        "https://ya.ru?q=123",
+        "funbox.ru",
+        "https://stackoverflow.com/questions/11828270/how-to-exit-the-vim-editor"
     ]
 }
 ```
@@ -47,6 +47,11 @@ POST /visited_links
 - Код должен быть покрыт тестами. 
 - Инструкции по запуску должны находиться в файле README.
 
+## В проекте применены
+Сборка docker образов для работы: django, redis.
+Проброшены на локальный хост папки для дальнейшей разработки проекта django.
+Файл redis (dump.rdb) так же сохраняется на хосте (папка redis-data) для сохранения внесенных изменений
+в случае перезапуска контейнера.
 
 ## Установка docker
 Для lunix систем:   
@@ -61,7 +66,7 @@ POST /visited_links
 `sudo docker-compose up -d`  //В среде lunix
 `docker-compose up -d` //Docker Desktop (Windows или Macos)
 
-После завершения установки и запуска контейнеров, заходим в браузере по адресу:
+После завершения установки и запуска контейнеров, заходим в браузере по адресам:
 
 Ресурс получения статистики:  
 http://127.0.0.1:8000/visited_domains  
@@ -69,6 +74,8 @@ http://127.0.0.1:8000/visited_domains
 Ресурс загрузки посещений:  
 http://127.0.0.1:8000/visited_links
 
+## Тест приложения:  
+В командной строке, переходим в директорию проекта и набираем: pytest
 
 Автор проекта: **Ерастов Алексей Сергеевич**  
 e-mail: a.erastov@gmail.com  

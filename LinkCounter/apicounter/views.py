@@ -1,9 +1,12 @@
-import json
+import json, time, redis
+from datetime import datetime
 from django.conf import settings
-import redis
-from rest_framework.decorators import api_view
+from django.http import (HttpResponseRedirect, HttpResponseBadRequest)
+from django.urls import reverse
 from rest_framework import status
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from urllib.parse import urlparse
 
 # Connect to our Redis instance
 r = redis.StrictRedis(host=settings.REDIS_HOST,
@@ -13,26 +16,41 @@ r = redis.StrictRedis(host=settings.REDIS_HOST,
 @api_view(['GET'])
 def visited_domains(request, *args, **kwargs):
     if request.method == 'GET':
-        items = {}
-        count = 0
-        for key in r.keys("*"):
-            items[key.decode("utf-8")] = r.get(key)
-            count += 1
-        response = {
-            'count': count,
-            'msg': f"Found {count} items.",
-            'items': items
-        }
-        return Response(response, status=200)
+        try:
+            print("делаю")
+            time1 = int(request.GET.get('from'))
+            time2 = int(request.GET.get('to'))
+            domains = set()
+            for target_time in range(time1, time2):
+                try: # Этот обработчик ошибок нужен если в redis вдруг попадутся данные, отличные от множества, тогда просто пропускаем их
+                    if r.smembers(str(target_time)):
+                        print(target_time, datetime.fromtimestamp(target_time), r.smembers(str(target_time)))
+                        domains.update(r.smembers(str(target_time)))
+                except: pass
+            return Response(data={'domains': domains, 'status': 'ok'}, status=200)
+        except Exception as e: HttpResponseBadRequest(content=e)
+    return Response(f"запрос некорректный, пример (последние 24 часа): http://127.0.0.1:8000/visited_domains?from={round(time.time())-86400}&to={round(time.time())}", status=400)
+
 
 @api_view(['POST'])
 def visited_links(request, *args, **kwargs):
     if request.method == 'POST':
-        item = json.loads(request.body)
-        key = list(item.keys())[0]
-        value = item[key]
-        r.set(key, value)
-        response = {
-            'msg': f"{key} successfully set to {value}"
-        }
-        return Response(response, 201)
+        try:
+            items = json.loads(request.body)
+            links=[]
+            for item in items['links']:
+                # парсим каждую запись, чтобы отделить домены
+                item_parsed = urlparse(item)
+                # собираю список из доменов
+                links.append(item_parsed.netloc or item_parsed.path)
+            # раз все эти домены приехали с одним временем, сразу убираем одинаковые чтобы не раздувать базу redis
+            links = set(links)
+            print("links = ", links)
+            # пишем в redis: дата - ключ, домены - множество
+            r.sadd(round(time.time()), *links)
+            print(round(time.time()))
+            return Response(data={'status': 'ok'}, status=201)
+        except Exception as e: HttpResponseBadRequest(content=e)
+    return HttpResponseRedirect(reverse('links'))
+
+
